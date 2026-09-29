@@ -36,6 +36,16 @@
         <label for="frame-slider">表示中のナウキャスト: <span id="frame-label">-</span></label>
         <input type="range" id="frame-slider" min="0" max="0" value="0">
       </div>
+      <div class="region-row">
+        <label>登録した地域
+          <select id="region-select"><option value="">選択...</option></select>
+        </label>
+        <button id="btn-region-goto" class="secondary" disabled>移動</button>
+        <button id="btn-region-delete" class="secondary" disabled>削除</button>
+        <input type="text" id="region-name-input" placeholder="地域名を入力" maxlength="20">
+        <button id="btn-region-save" class="secondary">現在の表示範囲を登録</button>
+      </div>
+      <p class="hint region-hint">「表示範囲を記憶」「登録地域」はこのブラウザだけに保存されます（他の端末・訪問者とは共有されません）</p>
     </div>
   </section>
 

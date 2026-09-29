@@ -10,6 +10,94 @@ let frames = { base: null, validtimes: [] };
 let latestResult = null;
 let currentFrameIdx = 0;
 
+const DEFAULT_VIEW = { lat: 35.6812, lng: 139.7671, zoom: 13 }; // 東京駅
+const LAST_VIEW_KEY = "dryroute_last_view";
+const REGIONS_KEY = "dryroute_saved_regions";
+
+// 表示範囲の記憶・登録地域はこのブラウザだけの利便のための機能（他の訪問者やサーバーとは共有しない）。
+// localStorageはプライベートブラウジング等で例外を投げうるので、必ずtry/catchで包む。
+function loadLastView() {
+  try {
+    const raw = localStorage.getItem(LAST_VIEW_KEY);
+    if (!raw) return null;
+    const v = JSON.parse(raw);
+    if (typeof v.lat === "number" && typeof v.lng === "number" && typeof v.zoom === "number") return v;
+  } catch (e) { /* 無視してデフォルト表示にフォールバック */ }
+  return null;
+}
+
+function saveLastView() {
+  try {
+    const c = map.getCenter();
+    localStorage.setItem(LAST_VIEW_KEY, JSON.stringify({ lat: c.lat, lng: c.lng, zoom: map.getZoom() }));
+  } catch (e) { /* 保存できなくても地図機能自体には影響しない */ }
+}
+
+function loadRegions() {
+  try {
+    const raw = localStorage.getItem(REGIONS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function saveRegions(regions) {
+  try { localStorage.setItem(REGIONS_KEY, JSON.stringify(regions)); } catch (e) { /* 保存失敗は無視 */ }
+}
+
+function refreshRegionSelect(selectIdx) {
+  const select = document.getElementById("region-select");
+  const regions = loadRegions();
+  const current = selectIdx !== undefined ? String(selectIdx) : select.value;
+  select.innerHTML = '<option value="">選択...</option>';
+  regions.forEach((r, i) => {
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = r.name;
+    select.appendChild(opt);
+  });
+  if (regions[parseInt(current, 10)]) select.value = current;
+  updateRegionButtons();
+}
+
+function updateRegionButtons() {
+  const hasSelection = document.getElementById("region-select").value !== "";
+  document.getElementById("btn-region-goto").disabled = !hasSelection;
+  document.getElementById("btn-region-delete").disabled = !hasSelection;
+}
+
+function gotoSelectedRegion() {
+  const select = document.getElementById("region-select");
+  const regions = loadRegions();
+  const r = regions[parseInt(select.value, 10)];
+  if (r) map.setView([r.lat, r.lng], r.zoom);
+}
+
+function deleteSelectedRegion() {
+  const select = document.getElementById("region-select");
+  const idx = parseInt(select.value, 10);
+  if (Number.isNaN(idx)) return;
+  const regions = loadRegions();
+  regions.splice(idx, 1);
+  saveRegions(regions);
+  refreshRegionSelect();
+}
+
+function saveCurrentAsRegion() {
+  const input = document.getElementById("region-name-input");
+  const name = input.value.trim();
+  if (!name) { input.focus(); return; }
+  const c = map.getCenter();
+  const regions = loadRegions();
+  const entry = { name, lat: c.lat, lng: c.lng, zoom: map.getZoom() };
+  const existingIdx = regions.findIndex((r) => r.name === name);
+  const savedIdx = existingIdx >= 0 ? existingIdx : regions.length;
+  if (existingIdx >= 0) regions[existingIdx] = entry;
+  else regions.push(entry);
+  saveRegions(regions);
+  input.value = "";
+  refreshRegionSelect(savedIdx);
+}
+
 function tileUrl(basetime, validtime) {
   return `https://www.jma.go.jp/bosai/jmatile/data/nowc/${basetime}/none/${validtime}/surf/hrpns/{z}/{x}/{y}.png`;
 }
@@ -28,13 +116,15 @@ function effectiveNativeZoom(mapZoom) {
 }
 
 async function main() {
-  map = L.map("map").setView([35.6812, 139.7671], 13);
+  const initialView = loadLastView() || DEFAULT_VIEW;
+  map = L.map("map").setView([initialView.lat, initialView.lng], initialView.zoom);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "© OpenStreetMap contributors", maxZoom: 18,
   }).addTo(map);
 
   map.on("click", onMapClick);
   map.on("zoomend", () => refreshJmaLayer());
+  map.on("moveend", saveLastView); // 表示範囲を記憶（ズームもmoveendで発火する）
 
   const res = await fetch("/api/frames");
   frames = await res.json();
@@ -46,6 +136,15 @@ async function main() {
 
   document.getElementById("btn-eval").addEventListener("click", evaluate);
   document.getElementById("btn-clear").addEventListener("click", clearWaypoints);
+
+  refreshRegionSelect();
+  document.getElementById("region-select").addEventListener("change", updateRegionButtons);
+  document.getElementById("btn-region-goto").addEventListener("click", gotoSelectedRegion);
+  document.getElementById("btn-region-delete").addEventListener("click", deleteSelectedRegion);
+  document.getElementById("btn-region-save").addEventListener("click", saveCurrentAsRegion);
+  document.getElementById("region-name-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") saveCurrentAsRegion();
+  });
 }
 
 function frameValidtime(idx) {
