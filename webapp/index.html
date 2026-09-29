@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>濡れない経路（デモ）</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>濡れない経路 — 出発時刻ナビ（デモ）</h1>
+  <p class="subtitle">気象庁 高解像度降水ナウキャスト（60分先まで）で、経路上の降雨を判定</p>
+</header>
+
+<main>
+  <section class="map-panel">
+    <div id="map"></div>
+    <div class="map-legend">
+      <span class="legend-item"><span class="legend-dot wet"></span>雨に当たる地点</span>
+      <span class="legend-item"><span class="legend-dot dry"></span>雨に当たらない地点</span>
+      <span class="legend-note">（表の行をクリックすると、その出発時刻での地点の色に切り替わります）</span>
+    </div>
+    <div class="map-controls">
+      <p class="hint">地図をクリックして経由地を順に追加（2点以上、出発地→...→到着地）。OSRMで道路に沿った経路にスナップします</p>
+      <label>移動手段
+        <select id="mode">
+          <option value="walk">徒歩（4.8km/h）</option>
+          <option value="bike">自転車（15km/h）</option>
+        </select>
+      </label>
+      <button id="btn-eval" disabled>この経路を評価</button>
+      <button id="btn-clear" class="secondary">経由地をクリア</button>
+      <span id="waypoint-count" class="waypoint-count">経由地: 0点</span>
+      <div class="frame-slider-wrap">
+        <label for="frame-slider">表示中のナウキャスト: <span id="frame-label">-</span></label>
+        <input type="range" id="frame-slider" min="0" max="0" value="0">
+      </div>
+    </div>
+  </section>
+
+  <section class="result-panel">
+    <h2>出発時刻の推薦</h2>
+    <p id="result-summary" class="result-summary">経路を指定して「評価」を押してください。</p>
+    <table id="result-table">
+      <thead><tr><th>出発</th><th>濡れる点（経路上）</th><th>経路全体の濡れる比率</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="table-legend">
+      「比率」= その出発時刻で出発した場合に、<b>経路上の全地点のうち何%が雨に当たるか</b>（地図の個々の丸の判定を経路全体で集計したもの）。<br>
+      強調された行 = 最も濡れにくい出発時刻（ただし相対的な最良で、必ずしも「安全」ではない）:
+      🟩 緑 = 完全に避けられる（0%） / 🟨 黄 = 一部濡れるが最良（50%未満） / 🟥 赤 = 最良でも半分以上濡れる（50%以上、他の時刻はさらに悪い）
+    </p>
+    <p class="caveats">
+      経路はOSRM（OpenStreetMap、公開デモサーバー）で道路にスナップ（取得できない場合は直線で代替）。降雨は二値判定（強度は区別しない）。
+      60分より先の予測は対象外。<br>出典: 気象庁ホームページ（高解像度降水ナウキャスト）・OpenStreetMapコントリビューター（ルーティング）
+    </p>
+  </section>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="app.js"></script>
+</body>
+</html>
