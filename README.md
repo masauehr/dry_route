@@ -5,6 +5,8 @@
 
 > 元は [weather_hackathon_ideas](https://github.com/masauehr/weather_hackathon_ideas)（気象×生成AIハッカソン事前準備）のアイデア ID-15 として検証したもの。検証がGOだったため独立プロジェクトとして切り出した（2026-09-29）。
 
+**公開デモ → <https://dry-route.onrender.com>**（Render無料プラン。15分無アクセスでスリープ、次回アクセス時に再起動のため数十秒かかる場合あり）
+
 ## 結論（先に）
 | 問い | 結果 |
 |---|---|
@@ -26,14 +28,16 @@ python server.py       # http://127.0.0.1:8793/
 
 **GitHub Pagesのような静的常時公開はできない**（後述の「なぜサーバーが必要か」）。ローカルで動かすか、Render等のサーバーホスティングにデプロイする。
 
-### 公開デプロイ（Render.com、無料枠・カード不要）
-[render.yaml](render.yaml) を同梱（[jma_mcp_remote](https://github.com/masauehr/jma-mcp-remote) と同じ構成）。
+### 公開デプロイ（Render.com、無料プラン）
+[render.yaml](render.yaml) を同梱（[jma_mcp_remote](https://github.com/masauehr/jma-mcp-remote) と同じ構成）。**公開中のデモは<https://dry-route.onrender.com>**（上記）。
+
 1. https://render.com でGitHubアカウントでサインアップ
 2. **New +** → **Blueprint** → このリポジトリを選択（`render.yaml` を自動検出）
-3. 内容を確認して **Apply** するとデプロイが始まる（Instance Typeは無料枠）
-4. デプロイ完了後、`https://dry-route.onrender.com`（または割り当てられた名前）が発行される
+3. カード情報の登録が必要（無料プランでも本人確認のため。実際の課金は無い）
+4. 内容を確認 → **Deploy Blueprint**（`render.yaml` に `plan: free` を明示していない場合、有料の Starter プラン $7/月 がデフォルトになるため要注意。見積もり金額が $0 であることを確認してから実行する）
+5. デプロイ完了後、`https://dry-route.onrender.com`（または割り当てられた名前）が発行される
 
-無料プランは15分間アクセスがないとスリープし、次回アクセス時に30〜60秒程度かかる。GitHubへのpush後の自動デプロイはRenderのサービス設定（Auto-Deploy）に従う。
+無料プランは15分間アクセスがないとスリープし、次回アクセス時に再起動で数十秒かかる。GitHubへのpush後の自動デプロイはRenderのサービス設定（Auto-Deploy）に従う。
 
 ## なぜサーバーが必要か（GitHub Pagesで公開できない理由）
 - 降水ナウキャストは「今から60分先まで」しか意味を持たないデータで、静的サイトに事前計算した結果を置いても数分で無意味になる。
