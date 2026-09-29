@@ -27,10 +27,13 @@ python server.py       # http://127.0.0.1:8793/
 **GitHub Pagesのような静的常時公開はできない**（後述の「なぜサーバーが必要か」）。ローカルで動かすか、Render等のサーバーホスティングにデプロイする。
 
 ### 公開デプロイ（Render.com、無料枠・カード不要）
+[render.yaml](render.yaml) を同梱（[jma_mcp_remote](https://github.com/masauehr/jma-mcp-remote) と同じ構成）。
 1. https://render.com でGitHubアカウントでサインアップ
-2. **New +** → **Web Service** → このリポジトリを選択
-3. 設定: Root Directory=`.`（リポジトリ直下）、Runtime=Python 3、Build Command=`pip install -r requirements.txt`、Start Command=`python server.py`、Instance Type=Free
-4. デプロイ完了後、`https://<名前>.onrender.com` が発行される（無料枠は15分無アクセスでスリープ、次回アクセス時に30〜50秒程度の再起動）
+2. **New +** → **Blueprint** → このリポジトリを選択（`render.yaml` を自動検出）
+3. 内容を確認して **Apply** するとデプロイが始まる（Instance Typeは無料枠）
+4. デプロイ完了後、`https://dry-route.onrender.com`（または割り当てられた名前）が発行される
+
+無料プランは15分間アクセスがないとスリープし、次回アクセス時に30〜60秒程度かかる。GitHubへのpush後の自動デプロイはRenderのサービス設定（Auto-Deploy）に従う。
 
 ## なぜサーバーが必要か（GitHub Pagesで公開できない理由）
 - 降水ナウキャストは「今から60分先まで」しか意味を持たないデータで、静的サイトに事前計算した結果を置いても数分で無意味になる。

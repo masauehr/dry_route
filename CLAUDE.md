@@ -18,7 +18,7 @@
 
 ## 実行・デプロイ
 - ローカル: `python server.py [port]`（既定8793）
-- 公開デプロイ: `PORT` 環境変数を読む（Render等が自動設定）。デプロイ手順は README.md 参照。
+- 公開デプロイ: Render（`render.yaml`同梱、[jma_mcp_remote](https://github.com/masauehr/jma-mcp-remote)と同じ構成）。`PORT` 環境変数を読む。デプロイ手順は README.md 参照。
 - ナウキャストは「今から60分先まで」しか意味を持たないため、GitHub Pages等の静的公開は不可（README.md「なぜサーバーが必要か」参照）。
 
 ## GitHub更新ルール
