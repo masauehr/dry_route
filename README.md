@@ -21,7 +21,7 @@
 ## Webアプリ
 ```bash
 pip install -r requirements.txt
-python server.py       # http://127.0.0.1:8793/
+python server.py       # http://127.0.0.1:8795/
 ```
 地図（Leaflet + OpenStreetMap）に気象庁の降雨タイルを重ねて表示。クリックで経由地を2点以上追加（出発地→...→到着地）し
 「評価」を押すと、OSRMで道路に沿った経路にスナップした上で、出発時刻の候補（0〜60分後・5分刻み）ごとの推薦テーブルと、

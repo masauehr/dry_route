@@ -10,7 +10,7 @@ DNSリバインディング対策のHostチェックは行わない（他の自�
 個人データを扱うため実施しているが、本アプリには該当しない）。
 
 使い方:
-  ローカル: python server.py [port]  → http://127.0.0.1:8793/
+  ローカル: python server.py [port]  → http://127.0.0.1:8795/
   公開デプロイ: 環境変数 PORT を使う（Render等が自動設定）
 出典: 気象庁ホームページ（高解像度降水ナウキャスト）・OpenStreetMap（ルーティング）
 """
@@ -26,7 +26,7 @@ import fetch_nowcast as fn
 import route as R
 
 WEB_DIR = Path(__file__).parent / "webapp"
-DEFAULT_PORT = 8793
+DEFAULT_PORT = 8795
 
 
 def _json_default(o):
